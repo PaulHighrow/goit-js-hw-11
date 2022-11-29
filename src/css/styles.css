@@ -3,9 +3,22 @@ body {
 }
 
 .gallery {
+  list-style: none;
   display: flex;
   flex-wrap: wrap;
-  /* justify-content: center; */
+  justify-content: center;
   gap: 30px;
   margin-top: 20px;
+}
+
+.gallery__item {
+  width: 400px;
+  height: 200px;
+}
+
+.gallery__image {
+  display: block;
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
 }
