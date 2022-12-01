@@ -1,5 +1,10 @@
 body {
+  font-family: Georgia, 'Times New Roman', Times, serif;
   margin: 0;
+}
+
+img {
+  display: block;
 }
 
 .gallery {
@@ -11,14 +16,23 @@ body {
   margin-top: 20px;
 }
 
-.gallery__item {
-  width: 400px;
-  height: 200px;
+.photo-card {
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 }
 
 .gallery__image {
-  display: block;
+  width: 400px;
+  height: 200px;
   object-fit: cover;
-  width: 100%;
-  height: 100%;
+}
+
+.info {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }

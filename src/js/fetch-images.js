@@ -3,8 +3,6 @@ import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import axios from 'axios';
 
-console.log('fetching');
-
 const imgSearchFormEl = document.querySelector('.search-form');
 const galleryEl = document.querySelector('.gallery');
 
@@ -15,11 +13,18 @@ let params = '';
 imgSearchFormEl.addEventListener('submit', onSearchHandler);
 
 async function fetchImages(searchQuery) {
-  params = `q=${searchQuery}&image_type=photo&orientation=horizontal&safesearch=true`;
   try {
-    return await fetch(`${BASE_URL}?key=${API_KEY}&${params}`).then(resp =>
-      resp.json()
-    );
+    return (resp = await axios
+      .get(BASE_URL, {
+        params: {
+          key: `${API_KEY}`,
+          q: `${searchQuery}`,
+          image_type: 'photo',
+          orientation: 'horizontal',
+          safesearch: 'true',
+        },
+      })
+      .then(resp => resp.data.hits));
   } catch (error) {
     Notify.failure(
       'Sorry, there are no images matching your search query. Please try again.'
@@ -29,23 +34,46 @@ async function fetchImages(searchQuery) {
 
 function onSearchHandler(evt) {
   evt.preventDefault();
-  fetchImages(imgSearchFormEl.elements.searchQuery.value.trim()).then(
-    ({ hits }) => {
-      console.log('something', hits);
-      renderImages(hits);
-    }
-  );
-
+  galleryEl.innerHTML = '';
+  let query = imgSearchFormEl.elements.searchQuery.value.trim();
+  fetchImages(query).then(hits => renderImages(hits));
   return;
 }
 
 function renderImages(hits) {
-  galleryEl.innerHTML = hits
+  const markup = hits
     .map(
-      ({ largeImageURL, webformatURL, tags }) =>
-        `<li class="gallery__item"><a href="${largeImageURL}"><img class="gallery__image" src="${webformatURL}" alt="${tags}"/></a></li>`
+      ({
+        largeImageURL,
+        webformatURL,
+        tags,
+        likes,
+        views,
+        comments,
+        downloads,
+      }) =>
+        `<div class="photo-card">
+          <a href="${largeImageURL}">
+            <img class="gallery__image" src="${webformatURL}" alt="${tags}" loading="lazy" />
+          </a>
+          <div class="info">
+            <p class="info-item">
+              <b>Likes: </b>${likes}
+            </p>
+            <p class="info-item">
+              <b>Views: </b>${views}
+            </p>
+            <p class="info-item">
+              <b>Comments: </b>${comments}
+            </p>
+            <p class="info-item">
+              <b>Downloads: </b>${downloads}
+            </p>
+          </div>
+        </div>`
     )
     .join('');
+  galleryEl.insertAdjacentHTML('beforeend', markup);
 }
 
 let simpleLightBoxGallery = new SimpleLightbox('.gallery a', {
