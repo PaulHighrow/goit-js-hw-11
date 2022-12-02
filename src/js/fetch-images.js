@@ -24,7 +24,14 @@ async function fetchImages(searchQuery) {
           safesearch: 'true',
         },
       })
-      .then(resp => resp.data.hits));
+      .then(({ data: { totalHits, hits, total } }) => {
+        if (!total) {
+          throw new Error();
+        } else {
+          Notify.success(`Hooray! We found ${totalHits} images.`);
+          return hits;
+        }
+      }));
   } catch (error) {
     Notify.failure(
       'Sorry, there are no images matching your search query. Please try again.'
@@ -76,7 +83,7 @@ function renderImages(hits) {
   galleryEl.insertAdjacentHTML('beforeend', markup);
 }
 
-let simpleLightBoxGallery = new SimpleLightbox('.gallery a', {
+let gallerySimpleLightbox = new SimpleLightbox('.gallery a', {
   captionsData: 'alt',
   captionDelay: 250,
 });

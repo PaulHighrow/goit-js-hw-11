@@ -3,16 +3,55 @@ body {
   margin: 0;
 }
 
-img {
+img,
+svg {
   display: block;
+}
+
+.search-form {
+  padding: 25px 0;
+
+  display: flex;
+  justify-content: center;
+
+  background-color: rgb(63, 87, 179);
+}
+
+.search-input,
+.search-button {
+  border: none;
+  font-family: inherit;
+  font-size: 21px;
+}
+
+.search-input:focus-within {
+  outline: transparent;
+}
+
+.search-button {
+  display: flex;
+  align-items: center;
+  transition: background-color 250ms linear;
+}
+
+.search-button:hover,
+.search-button:active {
+  background-color: rgb(165, 175, 220);
+}
+
+.search-icon {
+  width: 21px;
+  height: 21px;
 }
 
 .gallery {
   list-style: none;
+
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 30px;
+
   margin-top: 20px;
 }
 
