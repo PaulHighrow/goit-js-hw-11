@@ -20,11 +20,12 @@ const options = {
   rootMargin: '270px 0px 0px 0px',
   threshold: 1.0,
 };
-observer = new IntersectionObserver(loadMoreOnScroll, options);
+
+const observer = new IntersectionObserver(loadMoreOnScroll, options);
 
 async function fetchImages(searchQuery, pageNumber) {
   try {
-    return (resp = await axios.get(BASE_URL, {
+    const resp = await axios.get(BASE_URL, {
       params: {
         key: `${API_KEY}`,
         q: `${searchQuery}`,
@@ -34,7 +35,8 @@ async function fetchImages(searchQuery, pageNumber) {
         page: `${pageNumber}`,
         per_page: '40',
       },
-    }));
+    })
+      return resp;
   } catch (error) {
     console.log(error);
   }
