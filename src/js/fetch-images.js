@@ -20,7 +20,7 @@ const options = {
   rootMargin: '270px 0px 0px 0px',
   threshold: 1.0,
 };
-// observer = new IntersectionObserver(loadMoreOnScroll, options);
+observer = new IntersectionObserver(loadMoreOnScroll, options);
 
 async function fetchImages(searchQuery, pageNumber) {
   try {
@@ -43,6 +43,7 @@ async function fetchImages(searchQuery, pageNumber) {
 async function onSearchHandler(evt) {
   evt.preventDefault();
   galleryEl.innerHTML = '';
+  pageCounter = 1;
   let query = imgSearchFormEl.elements.searchQuery.value.trim();
   await fetchImages(query, pageCounter)
     .then(
@@ -64,14 +65,13 @@ async function onSearchHandler(evt) {
       renderImages(hits);
       gallerySimpleLightbox.refresh();
       loadMoreBtnEl.classList.remove('is-hidden');
-
-      const { height: cardHeight } =
-        galleryEl.firstElementChild.getBoundingClientRect();
+      const { height: formHeight } = imgSearchFormEl.getBoundingClientRect();
 
       window.scrollBy({
-        top: cardHeight * 2,
+        top: formHeight,
         behavior: 'smooth',
       });
+      observer.observe(loadMoreEl);
     })
     .catch(error => {
       console.log(error);
@@ -86,61 +86,63 @@ async function onLoadMoreClickHandler() {
   pageCounter += 1;
   let query = imgSearchFormEl.elements.searchQuery.value.trim();
   await fetchImages(query, pageCounter)
-    .then(
-      ({
-        data: { totalHits, hits, total },
-        config: {
-          params: { page },
-        },
-      }) => {
-        if (!total) {
-          throw new Error();
-        } else {
-          Notify.success(`Hooray! We found ${totalHits} images.`);
-          return hits;
-        }
+    .then(({ data: { hits } }) => {
+      if (!hits.length) {
+        throw new Error();
+      } else {
+        return hits;
       }
-    )
+    })
     .then(hits => {
       renderImages(hits);
       gallerySimpleLightbox.refresh();
+      const { height: cardHeight } =
+        galleryEl.firstElementChild.getBoundingClientRect();
+
+      window.scrollBy({
+        top: cardHeight * 3,
+        behavior: 'smooth',
+      });
     })
     .catch(error => {
-      console.log(error);
-      Notify.failure(
-        'Sorry, there are no images matching your search query. Please try again.'
+      Notify.warning(
+        "We're sorry, but you've reached the end of search results."
       );
     });
 }
 
-// async function loadMoreOnScroll() {
-//   console.log('you made it that far');
-//   pageCounter += 1;
-//   let query = imgSearchFormEl.elements.searchQuery.value.trim();
-//   await fetchImages(query, pageCounter)
-//     .then(
-//       ({
-//         data: { totalHits, hits, total },
-//         config: {
-//           params: { page },
-//         },
-//       }) => {
-//         if (!total) {
-//           throw new Error();
-//         } else {
-//           pageCounter += 1;
-//           Notify.success(`Hooray! We found ${totalHits} images.`);
-//           return hits;
-//         }
-//       }
-//     )
-//     .then(hits => renderImages(hits))
-//     .catch(error => {
-//       Notify.failure(
-//         'Sorry, there are no images matching your search query. Please try again.'
-//       );
-//     });
-// }
+async function loadMoreOnScroll(entries) {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      pageCounter += 1;
+      let query = imgSearchFormEl.elements.searchQuery.value.trim();
+      fetchImages(query, pageCounter)
+        .then(({ data: { hits } }) => {
+          if (!hits.length) {
+            throw new Error();
+          } else {
+            return hits;
+          }
+        })
+        .then(hits => {
+          renderImages(hits);
+          gallerySimpleLightbox.refresh();
+          const { height: cardHeight } =
+            galleryEl.firstElementChild.getBoundingClientRect();
+
+          window.scrollBy({
+            top: cardHeight * 3,
+            behavior: 'smooth',
+          });
+        })
+        .catch(error => {
+          Notify.warning(
+            "We're sorry, but you've reached the end of search results."
+          );
+        });
+    }
+  });
+}
 
 function renderImages(hits) {
   const markup = hits
@@ -176,7 +178,6 @@ function renderImages(hits) {
     )
     .join('');
   galleryEl.insertAdjacentHTML('beforeend', markup);
-  // observer.observe(loadMoreEl);
 }
 
 let gallerySimpleLightbox = new SimpleLightbox('.gallery a', {
