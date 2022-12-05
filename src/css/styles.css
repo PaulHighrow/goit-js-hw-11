@@ -75,3 +75,28 @@ svg {
   flex-direction: column;
   align-items: center;
 }
+
+.load-more-btn {
+  display: block;
+  width: 150px;
+  margin: 25px auto;
+
+  font-family: inherit;
+  font-size: 21px;
+
+  border: none;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 5px;
+  background-color: rgb(46, 185, 46);
+  color: white;
+
+  transition: background-color 250ms linear;
+}
+
+.is-hidden {
+  opacity: 0;
+}
+
+.load-more-btn:hover,
+.load-more-btn:focus {
+  background-color: rgb(63, 190, 63);
+}
