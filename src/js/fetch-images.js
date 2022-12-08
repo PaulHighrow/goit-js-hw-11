@@ -64,7 +64,10 @@ async function onSearchHandler(evt) {
     // loadMoreBtnEl.classList.remove('is-hidden');
   }
   if (!total) {
-    throw new Error();
+    Notify.failure(
+      'Sorry, there are no images matching your search query. Please try again.'
+    );
+    return;
   } else {
     Notify.success(`Hooray! We found ${totalHits} images.`);
     try {
